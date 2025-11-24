@@ -1,0 +1,27 @@
+# Env
+.env
+plant_lib_be/.env
+plant_lib_fe/.env
+
+# Python
+**/__pycache__/
+**/*.pyc
+plant_lib_be/.venv
+
+# Node/Next
+plant_lib_fe/node_modules
+plant_lib_fe/.next
+plant_lib_fe/.turbo
+
+# Builds / caches
+plant_lib_be/assets/uploads
+plant_lib_be/.pytest_cache
+dist/
+build/
+
+# Docker volumes (local)
+pgdata
+
+# Misc
+.DS_Store
+Thumbs.db

@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: plant_lib_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: plant_lib
+      POSTGRES_USER: plantlib_user
+      POSTGRES_PASSWORD: plantlib123
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plantlib_user -d plant_lib"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./plant_lib_be
+    container_name: plant_lib_backend
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./plant_lib_be/assets/uploads:/app/assets/uploads
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  frontend:
+    build:
+      context: ./plant_lib_fe
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    container_name: plant_lib_frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata: {}
